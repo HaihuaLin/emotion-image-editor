@@ -40,12 +40,15 @@ snapshot_download('AI-ModelScope/stable-diffusion-v1.5-no-safetensor', cache_dir
 print('✓ Stable Diffusion 模型下载完成')
 "
 
-# 4. 下载 ControlNet 模型
+# 4. 下载 ControlNet 模型 (depth)
 echo ""
-echo "[4/4] 下载 ControlNet 模型: AI-ModelScope/stable-diffusion-3.5-controlnets"
+echo "[4/4] 下载 ControlNet 模型: lllyasviel/sd-controlnet-depth"
 python -c "
-from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('AI-ModelScope/stable-diffusion-3.5-controlnets', cache_dir='/mnt/workspace/models/modelscope')
+from diffusers import ControlNetModel
+import os
+cache_dir = '/mnt/workspace/models/huggingface/controlnet-depth'
+os.makedirs(cache_dir, exist_ok=True)
+ControlNetModel.from_pretrained('lllyasviel/sd-controlnet-depth', cache_dir=cache_dir)
 print('✓ ControlNet 模型下载完成')
 "
 
