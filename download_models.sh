@@ -24,10 +24,10 @@ print('✓ CLIP 模型下载完成')
 
 # 2. 下载 BLIP-2 模型
 echo ""
-echo "[2/4] 下载 BLIP-2 模型: goldslj/blip2-opt-2.7b"
+echo "[2/4] 下载 BLIP-2 模型: goldsj/blip2-opt-2.7b"
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('goldslj/blip2-opt-2.7b', cache_dir='/mnt/workspace/models/modelscope')
+snapshot_download('goldsj/blip2-opt-2.7b', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ BLIP-2 模型下载完成')
 "
 

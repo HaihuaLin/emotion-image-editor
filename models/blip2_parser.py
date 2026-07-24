@@ -32,16 +32,10 @@ class BLIP2Parser:
             self.dtype = torch.float32
 
         # 选择模型路径：优先使用本地模型
-        model_path = None
-        if model_config.use_modelscope:
-            # 尝试多个可能的本地路径
-            for local_dir in model_config.blip2_local_dirs:
-                if os.path.exists(local_dir):
-                    model_path = local_dir
-                    print(f"[BLIP-2] 从本地加载模型: {model_path}")
-                    break
-
-        if model_path is None:
+        if model_config.use_modelscope and os.path.exists(model_config.blip2_local_dir):
+            model_path = model_config.blip2_local_dir
+            print(f"[BLIP-2] 从魔搭加载模型: {model_path}")
+        else:
             model_path = model_config.blip2_model_id
             print(f"[BLIP-2] 从HuggingFace加载模型: {model_path}")
 

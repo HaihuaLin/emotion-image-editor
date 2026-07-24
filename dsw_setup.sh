@@ -53,34 +53,8 @@ print('✓ CLIP 模型下载完成')
 echo "下载 BLIP-2 模型..."
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-import os
-
-# 尝试多个可能的BLIP-2模型ID
-blip2_model_ids = [
-    'AI-ModelScope/blip2-opt-2.7b',
-    'ofa-blip2-caption-opt-2.7b',
-    'blip2-opt-2.7b',
-]
-
-downloaded = False
-for model_id in blip2_model_ids:
-    try:
-        print(f'尝试下载: {model_id}')
-        snapshot_download(model_id, cache_dir='/mnt/workspace/models/modelscope')
-        print(f'✓ BLIP-2 模型下载完成: {model_id}')
-        downloaded = True
-        break
-    except Exception as e:
-        print(f'  跳过 {model_id}: {str(e)[:50]}...')
-
-if not downloaded:
-    print('⚠️  魔搭上未找到BLIP-2模型，从HuggingFace下载...')
-    from transformers import Blip2Processor, Blip2ForConditionalGeneration
-    cache_dir = '/mnt/workspace/models/huggingface/blip2'
-    os.makedirs(cache_dir, exist_ok=True)
-    Blip2Processor.from_pretrained('Salesforce/blip2-opt-2.7b', cache_dir=cache_dir)
-    Blip2ForConditionalGeneration.from_pretrained('Salesforce/blip2-opt-2.7b', cache_dir=cache_dir)
-    print('✓ BLIP-2 模型下载完成 (HuggingFace)')
+snapshot_download('goldsj/blip2-opt-2.7b', cache_dir='/mnt/workspace/models/modelscope')
+print('✓ BLIP-2 模型下载完成')
 "
 
 echo "下载 Stable Diffusion 模型..."
