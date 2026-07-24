@@ -57,12 +57,12 @@ with col1:
         st.session_state['input_image'] = Image.open(uploaded_file).convert("RGB")
 
     if 'input_image' in st.session_state:
-        st.image(st.session_state['input_image'], caption="输入图片", use_container_width=True)
+        st.image(st.session_state['input_image'], caption="输入图片", width="stretch")
 
     target_name = st.selectbox("🎯 目标情绪", list(emotion_options.keys()))
     target_emotion = EmotionCategory(emotion_options[target_name])
 
-    if st.button("🚀 开始转换", type="primary", use_container_width=True):
+    if st.button("🚀 开始转换", type="primary", width="stretch"):
         if 'input_image' not in st.session_state:
             st.error("请先选择或上传图片！")
         else:
@@ -120,7 +120,7 @@ with col2:
             with col:
                 label = f"⭐ 最佳" if idx == best_idx else f"候选 {idx+1}"
                 st.markdown(f"**{label}**")
-                st.image(img, caption=f"分数: {score:.4f}", use_container_width=True)
+                st.image(img, caption=f"分数: {score:.4f}", width="stretch")
 
         os.makedirs(app_config.results_dir, exist_ok=True)
         save_path = os.path.join(app_config.results_dir, f"result_{int(time.time())}.png")
