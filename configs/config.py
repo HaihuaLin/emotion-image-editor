@@ -90,20 +90,20 @@ class ModelConfig:
 
     # BLIP-2 语义解析器（魔搭）
     blip2_model_id: str = "goldsj/blip2-opt-2.7b"
-    blip2_local_dir: str = "/mnt/workspace/models/modelscope/goldsj--blip2-opt-2.7b"
+    blip2_local_dir: str = "/mnt/workspace/models/modelscope/goldsj--blip2-opt-2.7b/snapshots"
     blip2_device: str = "auto"  # 自动检测
     blip2_dtype: str = "bfloat16"
 
     # CLIP 诊断与裁判（魔搭）
     clip_model_id: str = "AI-ModelScope/CLIP-GmP-ViT-L-14"
-    clip_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--CLIP-GmP-ViT-L-14"
+    clip_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--CLIP-GmP-ViT-L-14/snapshots"
     clip_device: str = "auto"  # 自动检测
 
     # Stable Diffusion + ControlNet 生成器（魔搭）
     sd_model_id: str = "AI-ModelScope/stable-diffusion-v1.5-no-safetensor"
-    sd_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor"
+    sd_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor/snapshots"
     controlnet_model_id: str = "AI-ModelScope/stable-diffusion-3.5-controlnets"
-    controlnet_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-3.5-controlnets"
+    controlnet_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-3.5-controlnets/snapshots"
     sd_device: str = "auto"  # 自动检测
     sd_dtype: str = "bfloat16"
 
@@ -136,12 +136,39 @@ class ModelConfig:
             self.blip2_dtype = "float32"
             self.sd_dtype = "float32"
 
-        # 检查本地模型路径是否存在
+        # 检查本地模型路径是否存在，并修正路径
         if self.use_modelscope:
             self._check_model_paths()
 
+    def _find_model_path(self, base_path: str) -> str:
+        """在 snapshots 目录下查找实际的模型路径"""
+        if not os.path.exists(base_path):
+            return base_path
+
+        # 检查是否直接包含模型文件
+        if any(f.endswith(('.safetensors', '.bin', '.json')) for f in os.listdir(base_path)):
+            return base_path
+
+        # 查找 snapshots 下的子目录
+        snapshots_dir = os.path.join(base_path, "snapshots")
+        if os.path.exists(snapshots_dir):
+            for sub in os.listdir(snapshots_dir):
+                sub_path = os.path.join(snapshots_dir, sub)
+                if os.path.isdir(sub_path):
+                    # 检查是否包含模型文件
+                    if any(f.endswith(('.safetensors', '.bin', '.json', '.txt')) for f in os.listdir(sub_path)):
+                        return sub_path
+
+        return base_path
+
     def _check_model_paths(self):
         """检查魔搭模型本地路径"""
+        # 修正路径，查找实际的模型目录
+        self.blip2_local_dir = self._find_model_path(self.blip2_local_dir)
+        self.clip_local_dir = self._find_model_path(self.clip_local_dir)
+        self.sd_local_dir = self._find_model_path(self.sd_local_dir)
+        self.controlnet_local_dir = self._find_model_path(self.controlnet_local_dir)
+
         paths_to_check = {
             "BLIP-2": self.blip2_local_dir,
             "CLIP": self.clip_local_dir,
@@ -159,6 +186,8 @@ class ModelConfig:
             for m in missing:
                 print(f"   - {m}")
             print("\n下载命令: bash download_models.sh\n")
+        else:
+            print("\n✓ 所有模型路径验证通过")
 
 @dataclass
 class AppConfig:
