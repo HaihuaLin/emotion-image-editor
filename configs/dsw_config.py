@@ -71,7 +71,7 @@ def print_gpu_info():
     """打印 GPU 信息"""
     if torch.cuda.is_available():
         gpu_name = torch.cuda.get_device_name(0)
-        gpu_mem = torch.cuda.get_device_properties(0).total_mem / 1024**3
+        gpu_mem = torch.cuda.get_device_properties(0).total_memory / 1024**3
         print(f"\nGPU 信息:")
         print(f"  设备: {gpu_name}")
         print(f"  显存: {gpu_mem:.1f} GB")
