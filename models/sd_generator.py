@@ -6,7 +6,7 @@ import torch
 import numpy as np
 from PIL import Image
 from typing import List, Optional, Dict
-from transformers import DPTFeatureExtractor, DPTForDepthEstimation
+from transformers import AutoImageProcessor, DPTForDepthEstimation
 from diffusers import (
     StableDiffusionControlNetPipeline,
     ControlNetModel,
@@ -90,7 +90,7 @@ class StableDiffusionGenerator:
 
         # 深度估计模型（用于提取深度图）
         print("[Depth] 正在加载深度估计模型")
-        self.depth_processor = DPTFeatureExtractor.from_pretrained(
+        self.depth_processor = AutoImageProcessor.from_pretrained(
             "Intel/dpt-large"
         )
         self.depth_model = DPTForDepthEstimation.from_pretrained(

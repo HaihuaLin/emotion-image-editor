@@ -29,7 +29,7 @@ class EmoSetLoader:
         "sadness": EmotionCategory.SADNESS,
     }
 
-    def __init__(self, dataset_dir: str = "/data/emoset"):
+    def __init__(self, dataset_dir: str = "/mnt/workspace/data/emoset"):
         """
         初始化数据集加载器
 
