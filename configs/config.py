@@ -141,23 +141,21 @@ class ModelConfig:
             self._check_model_paths()
 
     def _find_model_path(self, base_path: str) -> str:
-        """在 snapshots 目录下查找实际的模型路径"""
+        """递归查找包含模型文件的实际目录"""
         if not os.path.exists(base_path):
             return base_path
 
         # 检查是否直接包含模型文件
-        if any(f.endswith(('.safetensors', '.bin', '.json')) for f in os.listdir(base_path)):
+        if any(f.endswith(('.safetensors', '.bin')) for f in os.listdir(base_path)):
             return base_path
 
-        # 查找 snapshots 下的子目录
-        snapshots_dir = os.path.join(base_path, "snapshots")
-        if os.path.exists(snapshots_dir):
-            for sub in os.listdir(snapshots_dir):
-                sub_path = os.path.join(snapshots_dir, sub)
-                if os.path.isdir(sub_path):
-                    # 检查是否包含模型文件
-                    if any(f.endswith(('.safetensors', '.bin', '.json', '.txt')) for f in os.listdir(sub_path)):
-                        return sub_path
+        # 递归向下查找
+        for sub in os.listdir(base_path):
+            sub_path = os.path.join(base_path, sub)
+            if os.path.isdir(sub_path):
+                result = self._find_model_path(sub_path)
+                if result != sub_path or any(f.endswith(('.safetensors', '.bin')) for f in os.listdir(result)):
+                    return result
 
         return base_path
 
@@ -168,6 +166,12 @@ class ModelConfig:
         self.clip_local_dir = self._find_model_path(self.clip_local_dir)
         self.sd_local_dir = self._find_model_path(self.sd_local_dir)
         self.controlnet_local_dir = self._find_model_path(self.controlnet_local_dir)
+
+        print(f"\n[模型路径]")
+        print(f"  CLIP: {self.clip_local_dir}")
+        print(f"  BLIP-2: {self.blip2_local_dir}")
+        print(f"  SD: {self.sd_local_dir}")
+        print(f"  ControlNet: {self.controlnet_local_dir}")
 
         paths_to_check = {
             "BLIP-2": self.blip2_local_dir,
