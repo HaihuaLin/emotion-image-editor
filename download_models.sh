@@ -42,10 +42,10 @@ print('✓ Stable Diffusion 模型下载完成')
 
 # 4. 下载 ControlNet 模型
 echo ""
-echo "[4/4] 下载 ControlNet 模型: AI-ModelScope/sd-controlnet-canny"
+echo "[4/4] 下载 ControlNet 模型: AI-ModelScope/stable-diffusion-3.5-controlnets"
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('AI-ModelScope/sd-controlnet-canny', cache_dir='/mnt/workspace/models/modelscope')
+snapshot_download('AI-ModelScope/stable-diffusion-3.5-controlnets', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ ControlNet 模型下载完成')
 "
 

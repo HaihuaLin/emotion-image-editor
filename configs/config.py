@@ -102,8 +102,8 @@ class ModelConfig:
     # Stable Diffusion + ControlNet 生成器（魔搭）
     sd_model_id: str = "AI-ModelScope/stable-diffusion-v1.5-no-safetensor"
     sd_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor"
-    controlnet_model_id: str = "AI-ModelScope/sd-controlnet-canny"
-    controlnet_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--sd-controlnet-canny"
+    controlnet_model_id: str = "AI-ModelScope/stable-diffusion-3.5-controlnets"
+    controlnet_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-3.5-controlnets"
     sd_device: str = "auto"  # 自动检测
     sd_dtype: str = "bfloat16"
 
