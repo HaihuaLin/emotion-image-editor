@@ -1,5 +1,5 @@
 """
-EmoEdit - Streamlit 版本（省显存）
+EmoEdit - Streamlit 版本
 """
 import streamlit as st
 import torch
@@ -12,7 +12,6 @@ from configs.config import EmotionCategory, EMOTION_NAMES_CN, app_config
 st.set_page_config(page_title="EmoEdit", page_icon="🎨", layout="wide")
 st.title("🎨 EmoEdit - 情感驱动图像编辑系统")
 
-# 懒加载
 @st.cache_resource
 def load_clip():
     from models.clip_analyzer import CLIPAnalyzer
@@ -28,7 +27,6 @@ def load_sd():
     from models.sd_generator import StableDiffusionGenerator
     return StableDiffusionGenerator()
 
-# 侧边栏
 st.sidebar.header("⚙️ 参数")
 num_candidates = st.sidebar.slider("候选图数量", 1, 5, 3)
 guidance_scale = st.sidebar.slider("引导强度", 1.0, 20.0, 7.5, 0.5)
@@ -40,7 +38,6 @@ col1, col2 = st.columns([1, 2])
 with col1:
     st.header("📥 输入")
 
-    # EmoSet
     emoset_dir = "/mnt/workspace/data/emoset"
     if os.path.exists(emoset_dir):
         st.subheader("📚 EmoSet 数据集")
@@ -51,35 +48,29 @@ with col1:
                 st.session_state['input_image'] = Image.open(os.path.join(emoset_dir, selected_file)).convert("RGB")
         st.divider()
 
-    # 上传
     uploaded_file = st.file_uploader("📤 上传图片", type=['jpg', 'jpeg', 'png'])
     if uploaded_file:
         st.session_state['input_image'] = Image.open(uploaded_file).convert("RGB")
 
     if 'input_image' in st.session_state:
-        st.image(st.session_state['input_image'], caption="输入图片", width="stretch")
+        st.image(st.session_state['input_image'], caption="输入图片")
 
     target_name = st.selectbox("🎯 目标情绪", list(emotion_options.keys()))
     target_emotion = EmotionCategory(emotion_options[target_name])
 
-    if st.button("🚀 开始转换", type="primary", width="stretch"):
+    if st.button("🚀 开始转换", type="primary", use_container_width=True):
         if 'input_image' not in st.session_state:
             st.error("请先选择或上传图片！")
         else:
-            # 懒加载模型
-            with st.spinner("加载 CLIP 模型..."):
+            with st.spinner("加载模型..."):
                 clip = load_clip()
-            with st.spinner("加载 BLIP-2 模型..."):
                 blip2 = load_blip2()
-            with st.spinner("加载 Stable Diffusion 模型..."):
                 sd = load_sd()
-            from models.emotion_prompt_builder import EmotionPromptBuilder
-            prompt_builder = EmotionPromptBuilder()
+                from models.emotion_prompt_builder import EmotionPromptBuilder
+                prompt_builder = EmotionPromptBuilder()
 
             with st.spinner("分析和生成中..."):
                 image = st.session_state['input_image']
-
-                st.write("📊 分析原图...")
                 emotion, confidence = clip.analyze_emotion(image)
                 desc = blip2.generate_caption(image)
                 st.info(f"检测情感: **{EMOTION_NAMES_CN[emotion]}** ({confidence:.2%})")
@@ -90,7 +81,6 @@ with col1:
                     st.code(prompts['positive'])
                     st.code(prompts['negative'])
 
-                st.write("🎨 生成候选图...")
                 start = time.time()
                 candidates = sd.generate_candidates(
                     prompt=prompts['positive'],
@@ -100,7 +90,6 @@ with col1:
                 )
                 gen_time = time.time() - start
 
-                st.write("🎯 CLIP 评分...")
                 scores = clip.score_candidates(candidates, target_emotion)
                 best_idx = scores[0][0]
 
@@ -118,13 +107,13 @@ with col2:
         cols = st.columns(len(candidates))
         for idx, (col, (img, score)) in enumerate(zip(cols, zip(candidates, scores))):
             with col:
-                label = f"⭐ 最佳" if idx == best_idx else f"候选 {idx+1}"
+                label = "⭐ 最佳" if idx == best_idx else f"候选 {idx+1}"
                 st.markdown(f"**{label}**")
-                st.image(img, caption=f"分数: {score:.4f}", width="stretch")
+                st.image(img, caption="分数: " + str(round(score, 4)))
 
         os.makedirs(app_config.results_dir, exist_ok=True)
-        save_path = os.path.join(app_config.results_dir, f"result_{int(time.time())}.png")
+        save_path = os.path.join(app_config.results_dir, "result_" + str(int(time.time())) + ".png")
         candidates[best_idx].save(save_path)
-        st.success(f"已保存: {save_path}")
+        st.success("已保存: " + save_path)
     else:
         st.info("等待生成...")
