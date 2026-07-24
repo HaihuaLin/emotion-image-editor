@@ -187,14 +187,13 @@ class ModelConfig:
 
         missing = []
         for name, path in paths_to_check.items():
-            if not os.path.exists(path):
+            if path and not os.path.exists(path):
                 missing.append(f"{name}: {path}")
 
         if missing:
-            print("\n⚠️  警告：以下模型路径不存在，请先运行 download_models.sh 下载模型：")
+            print("\n⚠️  警告：以下模型路径不存在：")
             for m in missing:
                 print(f"   - {m}")
-            print("\n下载命令: bash download_models.sh\n")
         else:
             print("\n✓ 所有模型路径验证通过")
 
