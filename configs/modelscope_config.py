@@ -11,28 +11,28 @@ MODELS = {
     # CLIP 模型 - 用于情感诊断和评分
     "clip": {
         "model_id": "AI-ModelScope/CLIP-GmP-ViT-L-14",
-        "local_dir": "/mnt/user/models/modelscope/clip",
+        "local_dir": "/mnt/workspace/models/modelscope/clip",
         "description": "CLIP 模型，用于零样本情感分类和生成质量评估",
     },
 
     # BLIP-2 模型 - 用于语义解析
     "blip2": {
         "model_id": "goldslj/blip2-opt-2.7b",
-        "local_dir": "/mnt/user/models/modelscope/blip2",
+        "local_dir": "/mnt/workspace/models/modelscope/blip2",
         "description": "BLIP-2 模型，用于生成客观场景描述",
     },
 
     # Stable Diffusion 模型 - 用于图像生成
     "sd": {
         "model_id": "AI-ModelScope/stable-diffusion-v1.5-no-safetensor",
-        "local_dir": "/mnt/user/models/modelscope/sd-v1.5",
+        "local_dir": "/mnt/workspace/models/modelscope/sd-v1.5",
         "description": "Stable Diffusion v1.5，用于图像生成",
     },
 
     # ControlNet 模型 - 用于结构控制
     "controlnet": {
         "model_id": "AI-ModelScope/sd-controlnet-canny",
-        "local_dir": "/mnt/user/models/modelscope/controlnet",
+        "local_dir": "/mnt/workspace/models/modelscope/controlnet",
         "description": "ControlNet 模型，用于保持图像结构",
     },
 }

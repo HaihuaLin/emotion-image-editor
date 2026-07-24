@@ -13,21 +13,21 @@ echo "=========================================="
 # 1. 创建持久化目录结构
 echo ""
 echo "[1/6] 创建持久化目录..."
-mkdir -p /mnt/user/data/emoset
-mkdir -p /mnt/user/data/sample_images
-mkdir -p /mnt/user/models/huggingface
-mkdir -p /mnt/user/models/modelscope
-mkdir -p /mnt/user/models/torch
-mkdir -p /mnt/user/results/emoedit
+mkdir -p /mnt/workspace/data/emoset
+mkdir -p /mnt/workspace/data/sample_images
+mkdir -p /mnt/workspace/models/huggingface
+mkdir -p /mnt/workspace/models/modelscope
+mkdir -p /mnt/workspace/models/torch
+mkdir -p /mnt/workspace/results/emoedit
 echo "✓ 目录创建完成"
 
 # 2. 设置环境变量
 echo ""
 echo "[2/6] 配置环境变量..."
-export HF_HOME=/mnt/user/models/huggingface
-export TRANSFORMERS_CACHE=/mnt/user/models/huggingface
-export HF_DATASETS_CACHE=/mnt/user/models/huggingface/datasets
-export TORCH_HOME=/mnt/user/models/torch
+export HF_HOME=/mnt/workspace/models/huggingface
+export TRANSFORMERS_CACHE=/mnt/workspace/models/huggingface
+export HF_DATASETS_CACHE=/mnt/workspace/models/huggingface/datasets
+export TORCH_HOME=/mnt/workspace/models/torch
 echo "✓ 环境变量配置完成"
 
 # 3. 安装依赖（如果需要）
@@ -46,28 +46,28 @@ echo "[4/6] 从魔搭下载模型..."
 echo "下载 CLIP 模型..."
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('AI-ModelScope/CLIP-GmP-ViT-L-14', cache_dir='/mnt/user/models/modelscope')
+snapshot_download('AI-ModelScope/CLIP-GmP-ViT-L-14', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ CLIP 模型下载完成')
 "
 
 echo "下载 BLIP-2 模型..."
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('goldslj/blip2-opt-2.7b', cache_dir='/mnt/user/models/modelscope')
+snapshot_download('goldslj/blip2-opt-2.7b', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ BLIP-2 模型下载完成')
 "
 
 echo "下载 Stable Diffusion 模型..."
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('AI-ModelScope/stable-diffusion-v1.5-no-safetensor', cache_dir='/mnt/user/models/modelscope')
+snapshot_download('AI-ModelScope/stable-diffusion-v1.5-no-safetensor', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ Stable Diffusion 模型下载完成')
 "
 
 echo "下载 ControlNet 模型..."
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
-snapshot_download('AI-ModelScope/sd-controlnet-canny', cache_dir='/mnt/user/models/modelscope')
+snapshot_download('AI-ModelScope/sd-controlnet-canny', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ ControlNet 模型下载完成')
 "
 
@@ -79,7 +79,7 @@ echo "[5/6] 下载深度估计模型..."
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
 try:
-    snapshot_download('Intel/dpt-large', cache_dir='/mnt/user/models/modelscope')
+    snapshot_download('Intel/dpt-large', cache_dir='/mnt/workspace/models/modelscope')
     print('✓ 深度估计模型下载完成')
 except:
     print('从HuggingFace下载深度估计模型...')
@@ -111,10 +111,10 @@ print(f'ModelScope: {modelscope.__version__}')
 # 检查模型路径
 import os
 model_paths = [
-    '/mnt/user/models/modelscope/AI-ModelScope--CLIP-GmP-ViT-L-14',
-    '/mnt/user/models/modelscope/goldslj--blip2-opt-2.7b',
-    '/mnt/user/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor',
-    '/mnt/user/models/modelscope/AI-ModelScope--sd-controlnet-canny',
+    '/mnt/workspace/models/modelscope/AI-ModelScope--CLIP-GmP-ViT-L-14',
+    '/mnt/workspace/models/modelscope/goldslj--blip2-opt-2.7b',
+    '/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor',
+    '/mnt/workspace/models/modelscope/AI-ModelScope--sd-controlnet-canny',
 ]
 print('\n模型路径检查:')
 for path in model_paths:
@@ -128,6 +128,6 @@ echo "=========================================="
 echo "✓ 环境初始化完成！"
 echo ""
 echo "启动命令:"
-echo "  cd /home/work/emotion-image-editor"
+echo "  cd /mnt/workspace/emotion-image-editor"
 echo "  python dsw_launcher.py"
 echo "=========================================="

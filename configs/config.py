@@ -90,20 +90,20 @@ class ModelConfig:
 
     # BLIP-2 语义解析器（魔搭）
     blip2_model_id: str = "goldslj/blip2-opt-2.7b"
-    blip2_local_dir: str = "/mnt/user/models/modelscope/goldslj--blip2-opt-2.7b"
+    blip2_local_dir: str = "/mnt/workspace/models/modelscope/goldslj--blip2-opt-2.7b"
     blip2_device: str = "auto"  # 自动检测
     blip2_dtype: str = "bfloat16"
 
     # CLIP 诊断与裁判（魔搭）
     clip_model_id: str = "AI-ModelScope/CLIP-GmP-ViT-L-14"
-    clip_local_dir: str = "/mnt/user/models/modelscope/AI-ModelScope--CLIP-GmP-ViT-L-14"
+    clip_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--CLIP-GmP-ViT-L-14"
     clip_device: str = "auto"  # 自动检测
 
     # Stable Diffusion + ControlNet 生成器（魔搭）
     sd_model_id: str = "AI-ModelScope/stable-diffusion-v1.5-no-safetensor"
-    sd_local_dir: str = "/mnt/user/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor"
+    sd_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--stable-diffusion-v1.5-no-safetensor"
     controlnet_model_id: str = "AI-ModelScope/sd-controlnet-canny"
-    controlnet_local_dir: str = "/mnt/user/models/modelscope/AI-ModelScope--sd-controlnet-canny"
+    controlnet_local_dir: str = "/mnt/workspace/models/modelscope/AI-ModelScope--sd-controlnet-canny"
     sd_device: str = "auto"  # 自动检测
     sd_dtype: str = "bfloat16"
 

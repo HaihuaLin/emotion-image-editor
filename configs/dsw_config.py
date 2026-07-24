@@ -8,8 +8,8 @@ import torch
 # 阿里云 DSW 路径配置
 # ============================================================
 
-# DSW 持久化存储根目录
-DSW_PERSISTENT_ROOT = "/mnt/user"
+# DSW 主目录（持久化存储）
+DSW_PERSISTENT_ROOT = "/mnt/workspace"
 
 # 数据和模型存储路径（持久化，重启不丢失）
 DATA_ROOT = os.path.join(DSW_PERSISTENT_ROOT, "data")
@@ -22,8 +22,8 @@ EMOSET_DIR = os.path.join(DATA_ROOT, "emoset")
 # Hugging Face 模型缓存目录
 HF_CACHE_DIR = os.path.join(MODEL_CACHE_DIR, "huggingface")
 
-# 项目工作目录（系统盘，放代码）
-WORK_DIR = "/home/work/emotion-image-editor"
+# 项目工作目录（代码目录）
+WORK_DIR = os.path.join(DSW_PERSISTENT_ROOT, "emotion-image-editor")
 
 # ============================================================
 # 目录创建
