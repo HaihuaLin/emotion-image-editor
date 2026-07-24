@@ -1,6 +1,3 @@
-"""
-EmoEdit - Streamlit 版本
-"""
 import streamlit as st
 import torch
 from PIL import Image
@@ -27,7 +24,7 @@ def load_sd():
     from models.sd_generator import StableDiffusionGenerator
     return StableDiffusionGenerator()
 
-st.sidebar.header("⚙️ 参数")
+st.sidebar.header("参数")
 num_candidates = st.sidebar.slider("候选图数量", 1, 5, 3)
 guidance_scale = st.sidebar.slider("引导强度", 1.0, 20.0, 7.5, 0.5)
 
@@ -36,51 +33,49 @@ emotion_options = {EMOTION_NAMES_CN[e]: e.value for e in EmotionCategory}
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    st.header("📥 输入")
-
+    st.header("输入")
     emoset_dir = "/mnt/workspace/data/emoset"
     if os.path.exists(emoset_dir):
-        st.subheader("📚 EmoSet 数据集")
         emoset_files = sorted([f for f in os.listdir(emoset_dir) if f.endswith(('.jpg', '.jpeg', '.png'))])
         if emoset_files:
-            selected_file = st.selectbox("选择图片", emoset_files)
+            selected = st.selectbox("EmoSet图片", emoset_files)
             if st.button("加载"):
-                st.session_state['input_image'] = Image.open(os.path.join(emoset_dir, selected_file)).convert("RGB")
+                st.session_state['img'] = Image.open(os.path.join(emoset_dir, selected)).convert("RGB")
         st.divider()
 
-    uploaded_file = st.file_uploader("📤 上传图片", type=['jpg', 'jpeg', 'png'])
-    if uploaded_file:
-        st.session_state['input_image'] = Image.open(uploaded_file).convert("RGB")
+    up = st.file_uploader("上传图片", type=['jpg', 'jpeg', 'png'])
+    if up:
+        st.session_state['img'] = Image.open(up).convert("RGB")
 
-    if 'input_image' in st.session_state:
-        st.image(st.session_state['input_image'], caption="输入图片")
+    if 'img' in st.session_state:
+        st.image(st.session_state['img'], caption="输入图片")
 
-    target_name = st.selectbox("🎯 目标情绪", list(emotion_options.keys()))
+    target_name = st.selectbox("目标情绪", list(emotion_options.keys()))
     target_emotion = EmotionCategory(emotion_options[target_name])
 
-    if st.button("🚀 开始转换", type="primary", use_container_width=True):
-        if 'input_image' not in st.session_state:
-            st.error("请先选择或上传图片！")
+    if st.button("开始转换", type="primary", use_container_width=True):
+        if 'img' not in st.session_state:
+            st.error("请先选择图片！")
         else:
             with st.spinner("加载模型..."):
                 clip = load_clip()
                 blip2 = load_blip2()
                 sd = load_sd()
                 from models.emotion_prompt_builder import EmotionPromptBuilder
-                prompt_builder = EmotionPromptBuilder()
+                pb = EmotionPromptBuilder()
 
-            with st.spinner("分析和生成中..."):
-                image = st.session_state['input_image']
+            with st.spinner("分析中..."):
+                image = st.session_state['img']
                 emotion, confidence = clip.analyze_emotion(image)
                 desc = blip2.generate_caption(image)
-                st.info(f"检测情感: **{EMOTION_NAMES_CN[emotion]}** ({confidence:.2%})")
-                st.info(f"描述: *{desc}*")
+                st.info("情感: " + EMOTION_NAMES_CN[emotion] + " (" + str(round(confidence*100, 1)) + "%)")
+                st.info("描述: " + desc)
 
-                prompts = prompt_builder.build_prompt(desc, target_emotion)
-                with st.expander("查看提示词"):
+                prompts = pb.build_prompt(desc, target_emotion)
+                with st.expander("提示词"):
                     st.code(prompts['positive'])
-                    st.code(prompts['negative'])
 
+            with st.spinner("生成中..."):
                 start = time.time()
                 candidates = sd.generate_candidates(
                     prompt=prompts['positive'],
@@ -93,27 +88,32 @@ with col1:
                 scores = clip.score_candidates(candidates, target_emotion)
                 best_idx = scores[0][0]
 
-                st.session_state['candidates'] = candidates
+                st.session_state['cands'] = candidates
                 st.session_state['scores'] = scores
-                st.session_state['best_idx'] = best_idx
-                st.success(f"完成！耗时 {gen_time:.1f}秒")
+                st.session_state['best'] = best_idx
+                st.success("完成！耗时 " + str(round(gen_time, 1)) + "秒")
 
 with col2:
-    st.header("📤 结果")
-    if 'candidates' in st.session_state:
-        candidates = st.session_state['candidates']
+    st.header("结果")
+    if 'cands' in st.session_state:
+        cands = st.session_state['cands']
         scores = st.session_state['scores']
-        best_idx = st.session_state['best_idx']
-        cols = st.columns(len(candidates))
-        for idx, (col, (img, score)) in enumerate(zip(cols, zip(candidates, scores))):
+        best = st.session_state['best']
+
+        for idx in range(len(cands)):
+            col = st.columns(1)[0]
             with col:
-                label = "⭐ 最佳" if idx == best_idx else f"候选 {idx+1}"
-                st.markdown(f"**{label}**")
-                st.image(img, caption="分数: " + str(round(score, 4)))
+                s = scores[idx]
+                real_score = s[1] if isinstance(s, tuple) else s
+                if idx == best:
+                    st.markdown("**⭐ 最佳**")
+                else:
+                    st.markdown("**候选 " + str(idx+1) + "**")
+                st.image(cands[idx], caption="分数: " + str(round(real_score, 4)))
 
         os.makedirs(app_config.results_dir, exist_ok=True)
-        save_path = os.path.join(app_config.results_dir, "result_" + str(int(time.time())) + ".png")
-        candidates[best_idx].save(save_path)
-        st.success("已保存: " + save_path)
+        sp = os.path.join(app_config.results_dir, "result_" + str(int(time.time())) + ".png")
+        cands[best].save(sp)
+        st.success("已保存: " + sp)
     else:
         st.info("等待生成...")
