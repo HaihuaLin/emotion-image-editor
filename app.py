@@ -112,20 +112,12 @@ class EmoEditApp:
         target_emotion: EmotionCategory,
         num_candidates: int = 3,
         guidance_scale: float = 7.5,
-        controlnet_scale: float = 0.85,
     ) -> Tuple[List[Image.Image], str]:
         """
         生成情感转换后的图像
         """
         if image is None:
             return [], "请先上传图片"
-
-        # 预处理
-        image = self.image_processor.resize_image(image)
-
-        # 提取深度图
-        print("[Pipeline] 提取深度图...")
-        depth_map = self.sd_generator.extract_depth_map(image)
 
         # 构建提示词
         print("[Pipeline] 构建提示词...")
@@ -152,7 +144,6 @@ class EmoEditApp:
 ### 生成参数
 - 候选图数量: {num_candidates}
 - 引导强度: {guidance_scale}
-- ControlNet强度: {controlnet_scale}
 
 ---
 正在生成中，请稍候...
@@ -164,10 +155,8 @@ class EmoEditApp:
         candidates = self.sd_generator.generate_candidates(
             prompt=prompts['positive'],
             negative_prompt=prompts['negative'],
-            depth_map=depth_map,
             num_candidates=num_candidates,
             guidance_scale=guidance_scale,
-            conditioning_scale=controlnet_scale,
         )
         gen_time = time.time() - start_time
 
@@ -194,17 +183,14 @@ class EmoEditApp:
         target_emotion: str,
         num_candidates: int,
         guidance_scale: float,
-        controlnet_scale: float,
     ) -> Tuple:
         """
         完整处理流程
-        返回: (分析结果, 客观描述, 深度图, 候选图1, 候选图2, 候选图3, 生成日志)
+        返回: (分析结果, 候选图1, 候选图2, 候选图3, 生成日志)
         """
         if image is None:
             return (
                 "请先上传图片",
-                "",
-                None,
                 None, None, None,
                 "",
             )
@@ -214,8 +200,6 @@ class EmoEditApp:
         if target_emotion not in emotion_map:
             return (
                 f"无效的情感类别: {target_emotion}",
-                "",
-                None,
                 None, None, None,
                 "",
             )
@@ -226,20 +210,14 @@ class EmoEditApp:
         print("\n[Step 1] 分析原图...")
         emotion_scores, objective_desc, analysis_text = self.analyze_image(image)
 
-        # Step 2: 深度图
-        print("\n[Step 2] 提取深度图...")
-        processed_image = self.image_processor.resize_image(image.copy())
-        depth_map = self.sd_generator.extract_depth_map(processed_image)
-
-        # Step 3: 生成
-        print("\n[Step 3] 生成候选图...")
+        # Step 2: 生成
+        print("\n[Step 2] 生成候选图...")
         candidates, gen_log, best_idx = self.generate_images(
             image=image,
             objective_desc=objective_desc,
             target_emotion=target,
             num_candidates=num_candidates,
             guidance_scale=guidance_scale,
-            controlnet_scale=controlnet_scale,
         )
 
         # 保存结果
@@ -263,8 +241,6 @@ class EmoEditApp:
 
         return (
             analysis_text,
-            objective_desc,
-            depth_map,
             candidates[0] if len(candidates) > 0 else None,
             candidates[1] if len(candidates) > 1 else None,
             candidates[2] if len(candidates) > 2 else None,
@@ -366,13 +342,6 @@ def create_ui(app: EmoEditApp):
                     step=0.5,
                     label="引导强度 (CFG Scale)",
                 )
-                controlnet_scale = gr.Slider(
-                    minimum=0.0,
-                    maximum=1.0,
-                    value=0.85,
-                    step=0.05,
-                    label="ControlNet 强度",
-                )
 
                 run_btn = gr.Button(
                     "🚀 开始转换",
@@ -387,12 +356,6 @@ def create_ui(app: EmoEditApp):
                 with gr.Tabs():
                     with gr.TabItem("📊 分析结果"):
                         analysis_output = gr.Markdown(label="分析结果")
-
-                    with gr.TabItem("🔍 深度图"):
-                        depth_output = gr.Image(
-                            label="深度图 (ControlNet)",
-                            height=250,
-                        )
 
                     with gr.TabItem("🎨 生成结果"):
                         with gr.Row():
@@ -452,12 +415,9 @@ def create_ui(app: EmoEditApp):
                 target_emotion,
                 num_candidates,
                 guidance_scale,
-                controlnet_scale,
             ],
             outputs=[
                 analysis_output,
-                gr.Textbox(visible=False),  # objective_desc (hidden)
-                depth_output,
                 candidate1,
                 candidate2,
                 candidate3,

@@ -15,7 +15,7 @@ mkdir -p /mnt/workspace/models/modelscope
 
 # 1. 下载 CLIP 模型
 echo ""
-echo "[1/4] 下载 CLIP 模型: AI-ModelScope/CLIP-GmP-ViT-L-14"
+echo "[1/3] 下载 CLIP 模型: AI-ModelScope/CLIP-GmP-ViT-L-14"
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
 snapshot_download('AI-ModelScope/CLIP-GmP-ViT-L-14', cache_dir='/mnt/workspace/models/modelscope')
@@ -24,7 +24,7 @@ print('✓ CLIP 模型下载完成')
 
 # 2. 下载 BLIP-2 模型
 echo ""
-echo "[2/4] 下载 BLIP-2 模型: goldsj/blip2-opt-2.7b"
+echo "[2/3] 下载 BLIP-2 模型: goldsj/blip2-opt-2.7b"
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
 snapshot_download('goldsj/blip2-opt-2.7b', cache_dir='/mnt/workspace/models/modelscope')
@@ -33,23 +33,11 @@ print('✓ BLIP-2 模型下载完成')
 
 # 3. 下载 Stable Diffusion 模型
 echo ""
-echo "[3/4] 下载 Stable Diffusion 模型: AI-ModelScope/stable-diffusion-v1.5-no-safetensor"
+echo "[3/3] 下载 Stable Diffusion 模型: AI-ModelScope/stable-diffusion-v1.5-no-safetensor"
 python -c "
 from modelscope.hub.snapshot_download import snapshot_download
 snapshot_download('AI-ModelScope/stable-diffusion-v1.5-no-safetensor', cache_dir='/mnt/workspace/models/modelscope')
 print('✓ Stable Diffusion 模型下载完成')
-"
-
-# 4. 下载 ControlNet 模型 (depth)
-echo ""
-echo "[4/4] 下载 ControlNet 模型: lllyasviel/sd-controlnet-depth"
-python -c "
-from diffusers import ControlNetModel
-import os
-cache_dir = '/mnt/workspace/models/huggingface/controlnet-depth'
-os.makedirs(cache_dir, exist_ok=True)
-ControlNetModel.from_pretrained('lllyasviel/sd-controlnet-depth', cache_dir=cache_dir)
-print('✓ ControlNet 模型下载完成')
 "
 
 echo ""
