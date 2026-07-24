@@ -13,6 +13,7 @@ from configs.config import EmotionCategory, EMOTION_NAMES_CN, model_config, app_
 from models import CLIPAnalyzer, BLIP2Parser, StableDiffusionGenerator, EmotionPromptBuilder
 from utils import ImageProcessor, EmotionVisualizer
 from utils.device_utils import print_device_info, clear_gpu_cache
+from utils.dataset_utils import emoset_loader
 
 
 class EmoEditApp:
@@ -278,6 +279,18 @@ def create_ui(app: EmoEditApp):
     # 情感选项
     emotion_choices = [(EMOTION_NAMES_CN[e], e.value) for e in EmotionCategory]
 
+    # EmoSet 图片选项
+    emoset_choices = []
+    if emoset_loader.image_files:
+        # 按情感分组显示
+        for emotion in EmotionCategory:
+            files = emoset_loader.get_images_by_emotion(emotion)
+            if files:
+                for f in files[:5]:  # 每种情感显示前5张
+                    filename = os.path.basename(f)
+                    label = f"[{EMOTION_NAMES_CN[emotion]}] {filename}"
+                    emoset_choices.append((label, f))
+
     with gr.Blocks(
         title=app_config.project_name,
         theme=gr.themes.Soft(),
@@ -314,6 +327,18 @@ def create_ui(app: EmoEditApp):
             with gr.Column(scale=1):
                 gr.Markdown("### 📥 输入")
 
+                # EmoSet 图片选择（如果数据集可用）
+                if emoset_choices:
+                    gr.Markdown("#### 📚 从 EmoSet 选择测试图片")
+                    emoset_dropdown = gr.Dropdown(
+                        choices=emoset_choices,
+                        label="选择 EmoSet 图片",
+                        value=None,
+                    )
+                    load_emoset_btn = gr.Button("📥 加载选中图片", size="sm")
+                    gr.Markdown("---")
+
+                gr.Markdown("#### 📤 或上传自定义图片")
                 input_image = gr.Image(
                     label="上传图片",
                     type="pil",
@@ -406,6 +431,20 @@ def create_ui(app: EmoEditApp):
         )
 
         # 绑定事件
+        # 加载 EmoSet 图片的函数
+        def load_emoset_image(filepath):
+            if filepath and os.path.exists(filepath):
+                return Image.open(filepath).convert("RGB")
+            return None
+
+        # 绑定 EmoSet 加载按钮事件
+        if emoset_choices:
+            load_emoset_btn.click(
+                fn=load_emoset_image,
+                inputs=[emoset_dropdown],
+                outputs=[input_image],
+            )
+
         run_btn.click(
             fn=app.process_image,
             inputs=[

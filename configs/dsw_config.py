@@ -16,8 +16,8 @@ DATA_ROOT = os.path.join(DSW_PERSISTENT_ROOT, "data")
 MODEL_CACHE_DIR = os.path.join(DSW_PERSISTENT_ROOT, "models")
 RESULTS_DIR = os.path.join(DSW_PERSISTENT_ROOT, "results", "emoedit")
 
-# EmoSet 数据集路径
-EMOSET_DIR = os.path.join(DATA_ROOT, "emoset")
+# EmoSet 数据集路径（用户数据盘）
+EMOSET_DIR = "/data/emoset"
 
 # Hugging Face 模型缓存目录
 HF_CACHE_DIR = os.path.join(MODEL_CACHE_DIR, "huggingface")
