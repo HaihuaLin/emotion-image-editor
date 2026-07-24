@@ -1,0 +1,28 @@
+# EmoEdit - 情感驱动图像编辑系统
+# 依赖列表
+
+# 核心深度学习框架
+torch>=2.0.0
+torchvision>=0.15.0
+
+# 模型生态
+transformers>=4.30.0
+diffusers>=0.20.0
+accelerate>=0.20.0
+modelscope>=1.10.0  # 魔搭SDK
+
+# 图像处理
+Pillow>=9.0.0
+opencv-python>=4.7.0
+
+# 数值计算
+numpy>=1.24.0
+
+# 可视化
+matplotlib>=3.7.0
+
+# Web界面
+gradio>=3.40.0
+
+# 进度条
+tqdm>=4.65.0
