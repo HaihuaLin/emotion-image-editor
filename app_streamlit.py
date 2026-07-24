@@ -27,6 +27,8 @@ def load_sd():
 st.sidebar.header("参数")
 num_candidates = st.sidebar.slider("候选图数量", 1, 5, 3)
 guidance_scale = st.sidebar.slider("引导强度", 1.0, 20.0, 7.5, 0.5)
+strength = st.sidebar.slider("修改强度", 0.1, 1.0, 0.65, 0.05,
+    help="0=完全不变, 1=完全重绘, 0.65=保持结构改变风格")
 
 emotion_options = {EMOTION_NAMES_CN[e]: e.value for e in EmotionCategory}
 
@@ -48,7 +50,7 @@ with col1:
         st.session_state['img'] = Image.open(up).convert("RGB")
 
     if 'img' in st.session_state:
-        st.image(st.session_state['img'], caption="输入图片")
+        st.image(st.session_state['img'], caption="原图")
 
     target_name = st.selectbox("目标情绪", list(emotion_options.keys()))
     target_emotion = EmotionCategory(emotion_options[target_name])
@@ -75,11 +77,13 @@ with col1:
                 with st.expander("提示词"):
                     st.code(prompts['positive'])
 
-            with st.spinner("生成中..."):
+            with st.spinner("基于原图生成中..."):
                 start = time.time()
                 candidates = sd.generate_candidates(
                     prompt=prompts['positive'],
                     negative_prompt=prompts['negative'],
+                    init_image=image,
+                    strength=strength,
                     num_candidates=num_candidates,
                     guidance_scale=guidance_scale,
                 )
@@ -91,6 +95,7 @@ with col1:
                 st.session_state['cands'] = candidates
                 st.session_state['scores'] = scores
                 st.session_state['best'] = best_idx
+                st.session_state['orig'] = image
                 st.success("完成！耗时 " + str(round(gen_time, 1)) + "秒")
 
 with col2:
@@ -100,8 +105,21 @@ with col2:
         scores = st.session_state['scores']
         best = st.session_state['best']
 
+        # 显示原图
+        if 'orig' in st.session_state:
+            st.subheader("原图 vs 最佳结果")
+            c_orig, c_best = st.columns(2)
+            with c_orig:
+                st.image(st.session_state['orig'], caption="原图")
+            with c_best:
+                real_score = scores[best][1] if isinstance(scores[best], tuple) else scores[best]
+                st.image(cands[best], caption="最佳 (分数: " + str(round(real_score, 4)) + ")")
+
+        st.divider()
+        st.subheader("所有候选图")
+        cols = st.columns(min(len(cands), 3))
         for idx in range(len(cands)):
-            col = st.columns(1)[0]
+            col = cols[idx % len(cols)]
             with col:
                 s = scores[idx]
                 real_score = s[1] if isinstance(s, tuple) else s
