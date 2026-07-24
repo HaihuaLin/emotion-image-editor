@@ -88,9 +88,13 @@ class ModelConfig:
     # 模型来源：魔搭
     use_modelscope: bool = True
 
-    # BLIP-2 语义解析器（魔搭）
-    blip2_model_id: str = "goldslj/blip2-opt-2.7b"
-    blip2_local_dir: str = "/mnt/workspace/models/modelscope/goldslj--blip2-opt-2.7b"
+    # BLIP-2 语义解析器（魔搭/HuggingFace）
+    blip2_model_id: str = "Salesforce/blip2-opt-2.7b"
+    blip2_local_dirs: list = [
+        "/mnt/workspace/models/modelscope/AI-ModelScope--blip2-opt-2.7b",
+        "/mnt/workspace/models/modelscope/ofa-blip2-caption-opt-2.7b",
+        "/mnt/workspace/models/huggingface/blip2",
+    ]
     blip2_device: str = "auto"  # 自动检测
     blip2_dtype: str = "bfloat16"
 
