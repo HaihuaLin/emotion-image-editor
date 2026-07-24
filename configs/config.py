@@ -146,7 +146,11 @@ class ModelConfig:
             return base_path
 
         # 检查是否直接包含模型文件
-        if any(f.endswith(('.safetensors', '.bin')) for f in os.listdir(base_path)):
+        files = os.listdir(base_path)
+        if any(f.endswith(('.safetensors', '.bin')) for f in files):
+            return base_path
+        # SD 模型需要 model_index.json
+        if 'model_index.json' in files:
             return base_path
 
         # 递归向下查找
@@ -154,7 +158,8 @@ class ModelConfig:
             sub_path = os.path.join(base_path, sub)
             if os.path.isdir(sub_path):
                 result = self._find_model_path(sub_path)
-                if result != sub_path or any(f.endswith(('.safetensors', '.bin')) for f in os.listdir(result)):
+                result_files = os.listdir(result) if os.path.exists(result) else []
+                if any(f.endswith(('.safetensors', '.bin')) for f in result_files) or 'model_index.json' in result_files:
                     return result
 
         return base_path
